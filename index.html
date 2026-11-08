@@ -3344,14 +3344,14 @@ async function viewChatFiles() {
     const close = document.createElement('button');
     close.textContent = '✕ Close';
     close.style.cssText = `
-      background:#b88632;
-      color:white;
-      border:0;
-      padding:9px 15px;
-      border-radius:8px;
-      margin-bottom:15px;
-      
-    close.onclick = () => {
+  background:#b88632;
+  color:white;
+  border:0;
+  padding:9px 15px;
+  border-radius:8px;
+`;
+
+close.onclick = () => {
       overlay.remove();
     };
     panel.appendChild(close);
