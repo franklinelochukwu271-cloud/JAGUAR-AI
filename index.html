@@ -2746,10 +2746,10 @@ function drawCelestialOrb(canvas, forceState = null, showPedestal = true) {
     }
 
     ctx.closePath();
-    ctx.strokeStyle = glow + (0.25 + (i % 4) * 0.12) + ')';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(255, 235, 170, 0.95)';
+    ctx.lineWidth = 2.2;
     ctx.shadowColor = gold;
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 18;
     ctx.stroke();
 
     ctx.restore();
