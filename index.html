@@ -2645,7 +2645,8 @@ document.querySelector('.home-input-wrap').style.display = 'flex';
     }
 
 
-// --- JAGUAR GOLDEN FILAMENT ORB ---
+
+// --- JAGUAR GOLDEN ENERGY RING ---
 function drawCelestialOrb(canvas, forceState = null, showPedestal = true) {
   if (!canvas || !canvas.parentElement) return;
 
@@ -2657,86 +2658,105 @@ function drawCelestialOrb(canvas, forceState = null, showPedestal = true) {
 
   const state = forceState || currentOrbState;
   const cx = w / 2;
-  const cy = h / 2 - (showPedestal ? 20 : 0);
+  const cy = h / 2;
 
-  const baseRadius = Math.min(w, h) * 0.22;
-  const pulseMod = (smoothedVolume * 25) + (smoothedBass * 20);
-  const radius = baseRadius + pulseMod;
-  const t = Date.now() * (state === 'thinking' ? 0.0015 : 0.0006);
+  const pulse = (smoothedVolume * 30) + (smoothedBass * 20);
+  const radius = Math.min(w, h) * 0.29 + pulse;
+  const t = Date.now() * (state === 'thinking' ? 0.0012 : 0.00065);
 
-  let gold = '#fbbf24';
-  let glow = 'rgba(245, 158, 11,';
+  let gold = '#ffc94a';
+  let bright = '#fff0a8';
 
   if (state === 'listening') {
-    gold = '#93c5fd';
-    glow = 'rgba(56, 189, 248,';
+    gold = '#70d9ff';
+    bright = '#e0f8ff';
   } else if (state === 'thinking') {
-    gold = '#f9a8d4';
-    glow = 'rgba(236, 72, 153,';
+    gold = '#ff83c5';
+    bright = '#ffe0f2';
   }
 
   ctx.clearRect(0, 0, w, h);
 
-  // 1. SOFT OUTER GOLDEN GLOW
-  const outer = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, radius * 2.1);
-  outer.addColorStop(0, glow + '0.35)');
-  outer.addColorStop(0.5, glow + '0.12)');
-  outer.addColorStop(1, 'transparent');
-
-  ctx.fillStyle = outer;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius * 2.1, 0, Math.PI * 2);
-  ctx.fill();
-
-  // 2. DARK GLASS SPHERE
-  const sphere = ctx.createRadialGradient(
-    cx - radius * 0.35,
-    cy - radius * 0.4,
-    radius * 0.05,
-    cx,
-    cy,
-    radius
+  // 1. OUTER ATMOSPHERIC GLOW
+  const glow = ctx.createRadialGradient(
+    cx, cy, radius * 0.65,
+    cx, cy, radius * 1.5
   );
 
-  sphere.addColorStop(0, '#fff8dc');
-  sphere.addColorStop(0.18, gold);
-  sphere.addColorStop(0.48, '#8a5810');
-  sphere.addColorStop(0.78, '#211506');
-  sphere.addColorStop(1, '#050403');
+  glow.addColorStop(0, 'rgba(255,190,50,0.07)');
+  glow.addColorStop(0.6, 'rgba(255,170,30,0.035)');
+  glow.addColorStop(1, 'transparent');
 
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, w, h);
+
+  // 2. ROTATING FILAMENT ENERGY RING
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fillStyle = sphere;
-  ctx.shadowColor = gold;
-  ctx.shadowBlur = 28 + pulseMod;
-  ctx.fill();
+  ctx.translate(cx, cy);
+  ctx.rotate(t);
+
+  for (let layer = 0; layer < 5; layer++) {
+    for (let strand = 0; strand < 9; strand++) {
+      ctx.beginPath();
+
+      for (let j = 0; j <= 120; j++) {
+        const a = (j / 120) * Math.PI * 2;
+
+        const wave =
+          Math.sin(a * (3 + layer) + t * 3 + strand) * 0.025 +
+          Math.sin(a * 7 - t * 2 + strand * 0.5) * 0.012;
+
+        const breathing = Math.sin(t * 2 + strand) * 0.008;
+
+        const r = radius * (
+          1 +
+          wave +
+          breathing +
+          (layer - 2) * 0.012
+        );
+
+        const x = Math.cos(a) * r;
+        const y = Math.sin(a) * r;
+
+        if (j === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+
+      const alpha = 0.18 + (strand % 4) * 0.13;
+
+      ctx.strokeStyle = gold;
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = strand % 3 === 0 ? 1.5 : 0.7;
+      ctx.shadowColor = gold;
+      ctx.shadowBlur = 8 + pulse * 0.3;
+      ctx.stroke();
+    }
+  }
+
+  ctx.globalAlpha = 1;
   ctx.restore();
 
-  // 3. CLIPPED GOLDEN FILAMENTS
+  // 3. BRIGHT WAVING ENERGY EDGES
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.98, 0, Math.PI * 2);
-  ctx.clip();
-
   ctx.translate(cx, cy);
-  ctx.rotate(t * 0.4);
 
-  for (let i = 0; i < 18; i++) {
-    const angle = (Math.PI / 18) * i;
-    const wave = Math.sin(t * 2 + i) * 0.12;
-
-    ctx.save();
-    ctx.rotate(angle);
-
+  for (let edge = 0; edge < 2; edge++) {
     ctx.beginPath();
 
-    for (let j = 0; j <= 100; j++) {
-      const a = (j / 100) * Math.PI * 2;
-      const r = radius * (0.88 + wave + Math.sin(a * 3 + t + i) * 0.045);
+    for (let j = 0; j <= 240; j++) {
+      const a = (j / 240) * Math.PI * 2;
+
+      const wave =
+        Math.sin(a * 5 + t * 4 + edge) * 0.045 +
+        Math.sin(a * 9 - t * 3) * 0.018;
+
+      const r = radius * (1 + wave + edge * 0.025);
 
       const x = Math.cos(a) * r;
-      const y = Math.sin(a) * r * (0.28 + (i % 4) * 0.12);
+      const y = Math.sin(a) * r;
 
       if (j === 0) {
         ctx.moveTo(x, y);
@@ -2745,75 +2765,34 @@ function drawCelestialOrb(canvas, forceState = null, showPedestal = true) {
       }
     }
 
-    ctx.closePath();
-    ctx.strokeStyle = 'rgba(255, 235, 170, 0.95)';
-    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = bright;
+    ctx.lineWidth = edge === 0 ? 1.8 : 1;
     ctx.shadowColor = gold;
     ctx.shadowBlur = 18;
+    ctx.globalAlpha = 0.8;
     ctx.stroke();
-
-    ctx.restore();
   }
 
-  // 4. INNER ENERGY PARTICLES
-  for (let i = 0; i < 24; i++) {
-    const a = t * 1.5 + i * 2.4;
-    const distance = radius * (0.2 + (i % 5) * 0.12);
-
-    const x = Math.cos(a) * distance;
-    const y = Math.sin(a * 1.3) * distance;
-
-    ctx.beginPath();
-    ctx.arc(x, y, 1.2 + (i % 3), 0, Math.PI * 2);
-    ctx.fillStyle = '#fff2b2';
-    ctx.shadowColor = gold;
-    ctx.shadowBlur = 10;
-    ctx.fill();
-  }
-
+  ctx.globalAlpha = 1;
   ctx.restore();
 
-  // 5. GOLDEN HIGHLIGHT
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(
-    cx - radius * 0.28,
-    cy - radius * 0.3,
-    radius * 0.12,
-    0,
-    Math.PI * 2
-  );
+  // 4. FLOATING GOLDEN PARTICLES
+  for (let i = 0; i < 28; i++) {
+    const a = t * 2 + i * 2.4;
+    const distance = radius * (0.92 + Math.sin(t + i) * 0.09);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.shadowColor = '#fff2b2';
-  ctx.shadowBlur = 18;
-  ctx.fill();
-  ctx.restore();
+    const x = cx + Math.cos(a) * distance;
+    const y = cy + Math.sin(a) * distance;
 
-  // 6. GOLDEN PEDESTAL
-  if (showPedestal) {
-    ctx.save();
     ctx.beginPath();
-    ctx.ellipse(
-      cx,
-      cy + baseRadius * 1.55,
-      baseRadius * 1.35,
-      baseRadius * 0.25,
-      0,
-      0,
-      Math.PI * 2
-    );
-
-    ctx.fillStyle = 'rgba(15, 12, 8, 0.85)';
-    ctx.fill();
-
-    ctx.strokeStyle = glow + '0.7)';
-    ctx.lineWidth = 2;
+    ctx.arc(x, y, 1 + (i % 3) * 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = bright;
     ctx.shadowColor = gold;
     ctx.shadowBlur = 12;
-    ctx.stroke();
-    ctx.restore();
+    ctx.fill();
   }
+
+  ctx.globalAlpha = 1;
 }
 
     // --- 60FPS ANIMATION LOOP ---
