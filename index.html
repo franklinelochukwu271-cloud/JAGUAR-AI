@@ -2650,7 +2650,7 @@ document.querySelector('.home-input-wrap').style.display = 'flex';
 function drawCelestialOrb(canvas, forceState = null, showPedestal = true) {
   if (!canvas || !canvas.parentElement) return;
 
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('3d');
   const w = canvas.width = canvas.parentElement.clientWidth;
   const h = canvas.height = canvas.parentElement.clientHeight;
 
