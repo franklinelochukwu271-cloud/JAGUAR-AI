@@ -3685,6 +3685,18 @@ function updateSendIcon() {
 
 jaguarInput.addEventListener("input", updateSendIcon);
 updateSendIcon();
+jaguarSendBtn.addEventListener("click", async function(event) {
+  event.preventDefault();
+
+  const message = jaguarInput.value.trim();
+  if (!message) return;
+
+  jaguarInput.value = "";
+  updateSendIcon();
+
+  setAppState("thinking");
+  await executePrompt(message);
+});
 </script>
 </body>
 </html>
